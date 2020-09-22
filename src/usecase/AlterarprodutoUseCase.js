@@ -90,7 +90,7 @@ class AlterarprodutoUseCase{
         } catch (fail) {
             console.log('AlterarprodutoUseCase.findAll', fail)
         }
-    }
+    } 
     
 
 
