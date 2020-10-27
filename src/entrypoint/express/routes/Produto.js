@@ -20,7 +20,6 @@ module.exports = app => {
         listProductUseCase.findById(req.params.id)
     })
 
-
     app.post('/user', function (req, res) {
         // console.log('POST USER', req.body)
         new CreatProductUseCase(new PresenterWEB(res), new OperatorsDB(), req.body).execute()
