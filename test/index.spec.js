@@ -1,71 +1,79 @@
 const chai = require('chai');
+chaiHttp = require('chai-http')
+chai.use(chaiHttp);
 const expect = chai.expect;
+const { CreatVendaUseCase } = require('../src/usecase/CreatVendaUseCase')
 
-const CreatProductUseCase = (produto,preco,codigo) => {
-    if(  produto != undefined &&  preco != undefined && typeof codigo != undefined ){ 
-      if ( typeof produto === "string" && produto.length > 3 && produto.length < 30 ){ 
-        if ( typeof codigo === "number" && Number.isInteger(codigo) ){  
-            if ( typeof preco === "number"  && preco > 0.0 ){  
-                return true;
-                } else { return false;} ;
-        } else { return false;} ;
-        }  else { return false;} ;
-    }else {return false;}
-}
 
-describe("Validando create", () => {
-    it('Todos os Dados São String - false',(done) =>{
-        const resultado = CreatProductUseCase('t','d',"d");
-        expect(resultado).be.equal(false);
+
+describe("Validando Botton Top", () => {
+    it('Menor função',(done) =>{
+        const resultado = new CreatVendaUseCase(null, null).obter_difenca_data_em_mes('2020-01-01','2020-01-02');
+        expect(resultado).be.equal(0);
         done();
     })
 
+    it('Menor Função - Teste mesmo mes invertido',(done) =>{
+        const resultado = new CreatVendaUseCase(null, null).obter_difenca_data_em_mes('2020-01-02','2020-01-01');
+        expect(resultado).be.equal(0);
+        done();
+    })
+
+
+    it('Menor Função - Teste Um ano',(done) =>{
+        const resultado = new CreatVendaUseCase(null, null).obter_difenca_data_em_mes('2020-01-01','2021-01-01');
+        expect(resultado).be.equal(12);
+        done();
+    })
+
+
+    it(' 1 Drive',(done) =>{
+        const resultado = new CreatVendaUseCase(null, null).calcular_valor_pagar('2020-01-01','2020-01-02',200);
+        expect(resultado).be.equal(200);
+        done();
+    })
+
+    it(' 1 Drive - teste ano ',(done) =>{
+        const resultado = new CreatVendaUseCase(null, null).calcular_valor_pagar('2020-01-01','2021-01-02',200);
+        expect(resultado).be.equal(272);
+        done();
+    })
+
+    it(' 1 Drive - teste 5 meses ',(done) =>{
+        const resultado = new CreatVendaUseCase(null, null).calcular_valor_pagar('2020-01-01','2020-06-02',200);
+        expect(resultado).be.equal(230);
+        done();
+    })
+
+    it(' 1 Drive - teste 5 meses valor quebrado ',(done) =>{
+        const resultado = new CreatVendaUseCase(null, null).calcular_valor_pagar('2020-01-01','2020-06-02',200.50);
+        expect(resultado).be.equal(230.575);
+        done();
+    })
+
+    it(' 2 Drive - Validar ', () =>{
+        //var simulajson['data_venda']['2020-01-01']['data_ultima']['2020-06-02'] ['valor'][250] 
+        //var Myuserdto = JSON.stringify({ data_venda: '2020-01-01' , data_ultima: '2020-06-02' , valor: 250 })
     
-    it('Dados Invalidos - false',(done) =>{
-        const resultado = CreatProductUseCase(undefined,'d',"d");
-        expect(resultado).be.equal(false);
-        done();
-    })
+        /*const resultado = new CreatVendaUseCase(null, null).validar2(JSON.stringify({ data_venda: '2020-01-01' , data_ultima: 2020-06-02 , valor: 250 }));
+        expect(resultado).be.equal(undefined);
+        done();*/
+        stripe_request = chai.request('localhost:3000/venda');
 
-    it('Correto com Inteiro - true',(done) =>{
-        const resultado = CreatProductUseCase('tere',1,2);
-        expect(resultado).be.equal(true);
-        done();
-    })
+stripe_request.post('/venda')
+              .set('content-type', 'application/x-www-form-urlencoded')
+              .send({
+                  
+                    data_venda: '2020-01-01' , data_ultima: '2020-06-02' , valor: 250
+              })
+              .end(function(err, res) {
+                  //console.log(err);
+                  //console.log(res.body);
+                  const resultado = new CreatVendaUseCase(null, null).validar2(res.body);
+                 expect(resultado).be.equal(undefined);
+                
+              });
 
-    it('Produto com descrição inferior a 3 - false',(done) =>{
-        const resultado = CreatProductUseCase('te',1,2);
-        expect(resultado).be.equal(false);
-        done();
-    })
-
-    it('Produto com descrição superior a 30 - false',(done) =>{
-        const resultado = CreatProductUseCase('teaaaaaaaaaaaaaaaaaaaaaa aaaaaaa',1,2);
-        expect(resultado).be.equal(false);
-        done();
-    })
-    
-    it('preço negativo - false',(done) =>{
-        const resultado = CreatProductUseCase('agulha',-1,2);
-        expect(resultado).be.equal(false);
-        done();
-    })
-
-    it('preço com casas decimais - true',(done) =>{
-        const resultado = CreatProductUseCase('agulha',1.99,2);
-        expect(resultado).be.equal(true);
-        done();
-    })
-
-    it('Dado Nulo -falso',(done) =>{
-        const resultado = CreatProductUseCase('agulha',1.99,null);
-        expect(resultado).be.equal(false);
-        done();
-    })
-
-    it('Codigo com Virgula -falso',(done) =>{
-        const resultado = CreatProductUseCase('agulha',1.99,null);
-        expect(resultado).be.equal(false);
-        done();
+        
     })
 })    
